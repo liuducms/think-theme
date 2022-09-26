@@ -11,7 +11,7 @@ namespace think\themes\middleware;
 
 use think\App;
 
-class Theme
+class Themes
 {
     protected $app;
 
