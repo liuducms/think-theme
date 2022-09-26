@@ -27,7 +27,12 @@ class Route
     {
         $app = app();
         $request = $app->request;
-
+        // 是否自动转换控制器和操作名
+        $convert = Config::get('route.url_convert');
+        $filter = $convert ? 'strtolower' : 'trim';
+        $theme = $theme ? trim(call_user_func($filter, $theme)) : '';
+        $controller = $controller ? trim(call_user_func($filter, $controller)) : 'index';
+        $action = $action ? trim(call_user_func($filter, $action)) : 'index';
         Event::trigger('themes_begin', $request);
 
         if (empty($theme) || empty($controller) || empty($action)) {
