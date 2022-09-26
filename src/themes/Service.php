@@ -90,7 +90,7 @@ class Service extends \think\Service
                         ->name($key)
                         ->completeMatch(true)
                         ->append([
-                            'theme' => $theme,
+                            'themes' => $theme,
                             'controller' => $controller,
                             'action' => $action
                         ]);
@@ -229,7 +229,7 @@ class Service extends \think\Service
     public function getThemesConfig()
     {
         $name = $this->app->request->theme;
-        $theme = get_theme_instance($name);
+        $theme = get_themes_instance($name);
         if (!$theme) {
             return [];
         }
