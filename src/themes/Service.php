@@ -174,7 +174,7 @@ class Service extends \think\Service
         }
         $config = Config::get('theme');
         // 读取主题目录及钩子列表
-        $base = get_class_methods("\\think\\theme");
+        $base = get_class_methods("\\think\\themes");
         // 读取主题目录中的php文件
         foreach (glob($this->getThemesPath() . '*/*.php') as $theme_file) {
             // 格式化路径信息
@@ -212,7 +212,7 @@ class Service extends \think\Service
     public function getThemesPath()
     {
         // 初始化主题目录
-        $theme_path = $this->app->getRootPath() . 'theme' . DIRECTORY_SEPARATOR;
+        $theme_path = $this->app->getRootPath() . 'themes' . DIRECTORY_SEPARATOR;
         // 如果主题目录不存在则创建
         if (!is_dir($theme_path)) {
             @mkdir($theme_path, 0755, true);
