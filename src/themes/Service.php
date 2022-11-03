@@ -42,6 +42,7 @@ class Service extends \think\Service
         $this->loadService();
         // 绑定主题容器
         $this->app->bind('themes', Service::class);
+       
     }
 
     public function boot()
@@ -90,7 +91,7 @@ class Service extends \think\Service
                         ->name($key)
                         ->completeMatch(true)
                         ->append([
-                            'theme' => $theme,
+                            'themes' => $theme,
                             'controller' => $controller,
                             'action' => $action
                         ]);
@@ -135,31 +136,46 @@ class Service extends \think\Service
     private function loadService()
     {
         $results = scandir($this->themes_path);  // 主题列表
+      
         $bind = [];
+        // 循环主题列表
         foreach ($results as $name) {
+            // 验证路径
             if ($name === '.' or $name === '..') {
                 continue;
             }
+           
+            // 验证文件
             if (is_file($this->theme_path . $name)) {
                 continue;
             }
+             
             $themeDir = $this->theme_path . $name . DIRECTORY_SEPARATOR;
+            // 验证目录
             if (!is_dir($themeDir)) {
                 continue;
             }
-
+            // dump($themeDir. ucfirst($name) . '.php');
             if (!is_file($themeDir . ucfirst($name) . '.php')) {
                 continue;
             }
 
             $service_file = $themeDir . 'info.ini';  // 基本信息
+          
             if (!is_file($service_file)) {
                 continue;
             }
             $info = parse_ini_file($service_file, true, INI_SCANNER_TYPED) ?: [];
+           
+            if(!isset($info['name'])){
+                continue;
+            }
             $bind = array_merge($bind, $info);
+           
         }
+      
         $this->app->bind($bind); // 绑定
+       
     }
 
     /**
@@ -173,18 +189,23 @@ class Service extends \think\Service
             return true;
         }
         $config = Config::get('theme');
+        // dump($config);
         // 读取主题目录及钩子列表
-        $base = get_class_methods("\\think\\Themes");
+        $base = (array)get_class_methods("\\think\\Themes");
+        // var_dump($base);
+        // die;
         // 读取主题目录中的php文件
         foreach (glob($this->getThemesPath() . '*/*.php') as $theme_file) {
             // 格式化路径信息
             $info = pathinfo($theme_file);
+          
             // 获取主题目录名
             $name = pathinfo($info['dirname'], PATHINFO_FILENAME);
             // 找到主题入口文件
-            if (strtolower($info['filename']) === 'plugin') {
+            if (strtolower($info['filename']) === 'Init') {
                 // 读取出所有公共方法
-                $methods = (array)get_class_methods("\\theme\\" . $name . "\\" . $info['filename']);
+                $methods = (array)get_class_methods("\\themes\\" . $name . "\\" . $info['filename']);
+              
                 // 跟主题基类方法做比对，得到差异结果
                 $hooks = array_diff($methods, $base);
                 // 循环将钩子方法写入配置中
@@ -202,6 +223,7 @@ class Service extends \think\Service
                 }
             }
         }
+      
         Config::set($config, 'theme');  // 添加主题配置
     }
 
@@ -212,7 +234,7 @@ class Service extends \think\Service
     public function getThemesPath()
     {
         // 初始化主题目录
-        $theme_path = $this->app->getRootPath() . 'theme' . DIRECTORY_SEPARATOR;
+        $theme_path = $this->app->getRootPath() . 'themes' . DIRECTORY_SEPARATOR;
         // 如果主题目录不存在则创建
         if (!is_dir($theme_path)) {
             @mkdir($theme_path, 0755, true);
@@ -229,7 +251,7 @@ class Service extends \think\Service
     public function getThemesConfig()
     {
         $name = $this->app->request->theme;
-        $theme = get_theme_instance($name);
+        $theme = get_themes_instance($name);
         if (!$theme) {
             return [];
         }
