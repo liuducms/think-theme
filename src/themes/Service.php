@@ -174,7 +174,7 @@ class Service extends \think\Service
         }
         $config = Config::get('theme');
         // 读取主题目录及钩子列表
-        $base = get_class_methods("\\think\\theme");
+        $base = get_class_methods("\\think\\Themes");
         // 读取主题目录中的php文件
         foreach (glob($this->getThemesPath() . '*/*.php') as $theme_file) {
             // 格式化路径信息
