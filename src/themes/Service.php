@@ -146,11 +146,11 @@ class Service extends \think\Service
             }
            
             // 验证文件
-            if (is_file($this->theme_path . $name)) {
+            if (is_file($this->themes_path . $name)) {
                 continue;
             }
              
-            $themeDir = $this->theme_path . $name . DIRECTORY_SEPARATOR;
+            $themeDir = $this->themes_path . $name . DIRECTORY_SEPARATOR;
             // 验证目录
             if (!is_dir($themeDir)) {
                 continue;
