@@ -27,7 +27,11 @@ class Route
     {
         $app = app();
         $request = $app->request;
-
+        $convert = Config::get('route.url_convert');
+        $filter = $convert ? 'strtolower' : 'trim';
+        $theme = $theme ? trim(call_user_func($filter, $theme)) : '';
+        $controller = $controller ? trim(call_user_func($filter, $controller)) : 'index';
+        $action = $action ? trim(call_user_func($filter, $action)) : 'index';
         Event::trigger('themes_begin', $request);
 
         if (empty($theme) || empty($controller) || empty($action)) {
@@ -37,9 +41,10 @@ class Route
         $request->theme = $theme;
         // 设置当前请求的控制器、操作
         $request->setController($controller)->setAction($action);
-
-        // 获取插件基础信息
+         
+        // 获取主题基础信息
         $info = get_themes_info($theme);
+        
         if (!$info) {
             throw new HttpException(404, lang('theme %s not found', [$theme]));
         }
@@ -49,7 +54,7 @@ class Route
 
         // 监听theme_module_init
         Event::trigger('theme_module_init', $request);
-        $class = get_theme_class($theme, 'controller', $controller);
+        $class = get_themes_class($theme, 'controller', $controller);
         if (!$class) {
             throw new HttpException(404, lang('theme controller %s not found', [Str::studly($controller)]));
         }
