@@ -134,7 +134,7 @@ class Service extends \think\Service
      */
     private function loadService()
     {
-        $results = scandir($this->theme_path);  // 主题列表
+        $results = scandir($this->themes_path);  // 主题列表
         $bind = [];
         foreach ($results as $name) {
             if ($name === '.' or $name === '..') {
