@@ -50,6 +50,8 @@ abstract class Themes
         $this->view->config([
             'view_path' => $this->theme_path . 'view' . DIRECTORY_SEPARATOR
         ]);
+        
+        
         // 控制器初始化
         $this->initialize();
     }
