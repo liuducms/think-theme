@@ -59,7 +59,7 @@ class Service extends \think\Service
             // 注册控制器路由
             $route->rule("themes/:theme/[:controller]/[:action]$", $execute)->middleware(Themes::class);
             // 自定义路由
-            $routes = (array) Config::get('theme.route', []);
+            $routes = (array) Config::get('themes.route', []);
             foreach ($routes as $key => $val) {
                 if (!$val) {
                     continue;
@@ -70,7 +70,7 @@ class Service extends \think\Service
                     foreach ($val['rule'] as $k => $rule) {
                         [$theme, $controller, $action] = explode('/', $rule);
                         $rules[$k] = [
-                            'themes'        => $theme,
+                            'theme'        => $theme,
                             'controller'    => $controller,
                             'action'        => $action,
                             'indomain'      => 1,
@@ -91,7 +91,7 @@ class Service extends \think\Service
                         ->name($key)
                         ->completeMatch(true)
                         ->append([
-                            'themes' => $theme,
+                            'theme' => $theme,
                             'controller' => $controller,
                             'action' => $action
                         ]);
@@ -107,7 +107,7 @@ class Service extends \think\Service
     {
         $hooks = $this->app->isDebug() ? [] : Cache::get('hooks', []);
         if (empty($hooks)) {
-            $hooks = (array) Config::get('theme.hooks', []);
+            $hooks = (array) Config::get('themes.hooks', []);
             // 初始化钩子
             foreach ($hooks as $key => $values) {
                 if (is_string($values)) {
@@ -116,15 +116,15 @@ class Service extends \think\Service
                     $values = (array) $values;
                 }
                 $hooks[$key] = array_filter(array_map(function ($v) use ($key) {
-                    return [get_theme_class($v), $key];
+                    return [get_themes_class($v), $key];
                 }, $values));
             }
             Cache::set('hooks', $hooks);
         }
-        //如果在主题中有定义 ThemeInit，则直接执行
-        if (isset($hooks['ThemeInit'])) {
+        //如果在主题中有定义 ThemesInit，则直接执行
+        if (isset($hooks['ThemesInit'])) {
             foreach ($hooks['ThemeInit'] as $k => $v) {
-                Event::trigger('ThemeInit', $v);
+                Event::trigger('ThemesInit', $v);
             }
         }
         Event::listenEvents($hooks); // 批量注册事件监听
@@ -185,11 +185,10 @@ class Service extends \think\Service
     private function autoload()
     {
         // 是否处理自动载入
-        if (!Config::get('theme.autoload', true)) {
+        if (!Config::get('themes.autoload', true)) {
             return true;
         }
         $config = Config::get('theme');
-        // dump($config);
         // 读取主题目录及钩子列表
         $base = (array)get_class_methods("\\think\\Themes");
         // var_dump($base);
@@ -224,7 +223,7 @@ class Service extends \think\Service
             }
         }
       
-        Config::set($config, 'theme');  // 添加主题配置
+        Config::set($config, 'themes');  // 添加主题配置
     }
 
     /**
@@ -234,13 +233,13 @@ class Service extends \think\Service
     public function getThemesPath()
     {
         // 初始化主题目录
-        $theme_path = $this->app->getRootPath() . 'themes' . DIRECTORY_SEPARATOR;
+        $themes_path = $this->app->getRootPath() . 'themes' . DIRECTORY_SEPARATOR;
         // 如果主题目录不存在则创建
-        if (!is_dir($theme_path)) {
-            @mkdir($theme_path, 0755, true);
+        if (!is_dir($themes_path)) {
+            @mkdir($themes_path, 0755, true);
         }
 
-        return $theme_path;
+        return $themes_path;
     }
 
     /**
