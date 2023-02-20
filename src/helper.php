@@ -94,10 +94,12 @@ if (!function_exists('get_themes_instance')) {
         if (isset($_themes[$name])) {
             return $_themes[$name];
         }
+       
         $class = get_themes_class($name);
+      
         if (class_exists($class)) {
+          
             $_themes[$name] = new $class(app());
-
             return $_themes[$name];
         } else {
             return null;
@@ -116,6 +118,7 @@ if (!function_exists('get_themes_class')) {
     function get_themes_class($name, $type = 'hook', $class = null)
     {
         $name = trim($name);
+       
         // 处理多级控制器情况
         if (!is_null($class) && strpos($class, '.')) {
             $class = explode('.', $class);
@@ -125,14 +128,15 @@ if (!function_exists('get_themes_class')) {
         } else {
             $class = Str::studly(is_null($class) ? $name : $class);
         }
+     
         switch ($type) {
             case 'controller':
                 $namespace = '\\themes\\' . $name . '\\controller\\' . $class;
                 break;
             default:
-                $namespace = '\\themes\\' . $name . '\\Plugin';  //  入口
+                $namespace = '\\themes\\' . $name . '\\Init';  //  入口
         }
-
+      
         return class_exists($namespace) ? $namespace : '';
     }
 }
