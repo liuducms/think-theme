@@ -57,7 +57,7 @@ class Service extends \think\Service
             }
 
             // 注册控制器路由
-            $route->rule("themes/:theme/[:controller]/[:action]", $execute)->middleware(Themes::class);
+            $route->rule("themes/:theme/[:controller]/[:action]$", $execute)->middleware(Themes::class);
             // 自定义路由
             $routes = (array) Config::get('theme.route', []);
             foreach ($routes as $key => $val) {
