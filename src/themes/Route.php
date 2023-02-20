@@ -78,7 +78,7 @@ class Route
             // 操作不存在
             throw new HttpException(404, lang('theme action %s not found', [get_class($instance).'->'.$action.'()']));
         }
-        Event::trigger('theme_action_begin', $call);
+        Event::trigger('themes_action_begin', $call);
 
         return call_user_func_array($call, $vars);
     }
