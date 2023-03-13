@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace think\themes\middleware;
 
 use think\App;
-
+use think\facade\Env;
+use think\Exception;
 class Themes
 {
     protected $app;
@@ -28,6 +29,26 @@ class Themes
      */
     public function handle($request, \Closure $next)
     {
+        
+        $path = $request->pathinfo();
+        $arr = explode('/',$path);
+	    $theme = Env::get("THEME_NAME");
+        // 如果有主题 就跳转到主题主页
+        if(empty($theme)){
+            abort(404,"未设置主题模版");
+        }else{
+            if($arr[1] == $theme){
+              
+                $theme_info = get_themes_info($theme);
+                $theme_status = $theme_info['status'];
+                if($theme_status != 1){
+                    abort(404,"主题已关闭");
+                }
+            }else{
+                abort(404,"主题不存在");
+            }
+        }
+    //     // 主题中间件
         hook('theme_middleware', $request);
 
         return $next($request);
