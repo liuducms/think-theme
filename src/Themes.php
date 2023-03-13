@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace think;
 
 use think\App;
-use think\helper\Str;
 use think\facade\Config;
 use think\facade\View;
 
@@ -48,17 +47,17 @@ abstract class Themes
         $this->theme_info = "theme_{$this->name}_info";
         $this->view = clone View::engine('Think');
         $this->view->config([
-            'view_path' => $this->theme_path . 'view' . DIRECTORY_SEPARATOR
+            'view_path' => $this->theme_path . 'view' . DIRECTORY_SEPARATOR,
         ]);
-        
-        
         // 控制器初始化
         $this->initialize();
     }
 
     // 初始化
     protected function initialize()
-    {}
+    {
+       
+    }
 
     /**
      * 获取主题标识
@@ -130,13 +129,16 @@ abstract class Themes
      */
     final public function getInfo()
     {
+        
         $info = Config::get($this->theme_info, []);
+    
         if ($info) {
             return $info;
         }
 
-        // 文件属性
+        // 文件属性   Init初始化文件是否設置$info
         $info = $this->info ?? [];
+      
         // 文件配置
         $info_file = $this->theme_path . 'info.ini';
         if (is_file($info_file)) {
@@ -144,6 +146,7 @@ abstract class Themes
             $_info['url'] = themes_url();
             $info = array_merge($_info, $info);
         }
+       
         Config::set($info, $this->theme_info);
 
         return isset($info) ? $info : [];
