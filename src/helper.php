@@ -73,11 +73,13 @@ if (!function_exists('get_themes_info')) {
      */
     function get_themes_info($name)
     {
+      
         $theme = get_themes_instance($name);
+       
         if (!$theme) {
             return [];
         }
-
+     
         return $theme->getInfo();
     }
 }
