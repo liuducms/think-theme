@@ -25,14 +25,16 @@ class Route
      */
     public static function execute($theme = null, $controller = null, $action = null)
     {
+        
         $app = app();
         $request = $app->request;
         $convert = Config::get('route.url_convert');
         $filter = $convert ? 'strtolower' : 'trim';
         $theme = $theme ? trim(call_user_func($filter, $theme)) : '';
-        $controller = $controller ? trim(call_user_func($filter, $controller)) : 'index';
-        $action = $action ? trim(call_user_func($filter, $action)) : 'index';
-        Event::trigger('themes_begin', $request);
+        $controller = $controller ? trim(call_user_func($filter, $controller)) : env('theme.controller');
+        $action = $action ? trim(call_user_func($filter, $action)) : env('theme.action');
+
+        Event::trigger('theme_begin', $request);
 
         if (empty($theme) || empty($controller) || empty($action)) {
             throw new HttpException(500, lang('theme can not be empty'));
@@ -78,7 +80,7 @@ class Route
             // 操作不存在
             throw new HttpException(404, lang('theme action %s not found', [get_class($instance).'->'.$action.'()']));
         }
-        Event::trigger('themes_action_begin', $call);
+        Event::trigger('theme_action_begin', $call);
 
         return call_user_func_array($call, $vars);
     }
