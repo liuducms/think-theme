@@ -44,7 +44,7 @@ class Service extends \think\Service
         $this->app->bind('themes', Service::class);
        
     }
-
+    // 路由注册启动
     public function boot()
     {
         $this->registerRoutes(function (Route $route) {
@@ -58,12 +58,33 @@ class Service extends \think\Service
 
             // 注册控制器路由
             $route->rule("themes/:theme/[:controller]/[:action]$", $execute)->middleware(Themes::class);
-            // 自定义路由
+
+            // 自定义路由 config/themes.php
             $routes = (array) Config::get('themes.route', []);
+            // 注册主题路由映射
+            if (is_file($this->app->themes->getThemesPath() . "route.php")) {
+                $diy_routes = include($this->app->themes->getThemesPath() . "route.php");
+                // 一维数组或多维数组 结合
+                // @1 都是一维数组
+                $routes = $routes + $diy_routes;
+                // @2  有多维数组
+
+
+
+            }
+
+            // tags.php  // 行为
+
+            if (is_file($this->app->themes->getThemesPath() . 'tags.php')) {
+
+            }
+    
             foreach ($routes as $key => $val) {
+             
                 if (!$val) {
                     continue;
                 }
+                // 分组
                 if (is_array($val)) {
                     $domain = $val['domain'];
                     $rules = [];
@@ -76,6 +97,7 @@ class Service extends \think\Service
                             'indomain'      => 1,
                         ];
                     }
+                    // @todo   域名路由   分组路由。。。  //虚拟机或服务器要配置
                     $route->domain($domain, function () use ($rules, $route, $execute) {
                         // 动态注册域名的路由规则
                         foreach ($rules as $k => $rule) {
@@ -86,6 +108,7 @@ class Service extends \think\Service
                         }
                     });
                 } else {
+                    // 单路由
                     list($theme, $controller, $action) = explode('/', $val);
                     $route->rule($key, $execute)
                         ->name($key)
@@ -97,6 +120,14 @@ class Service extends \think\Service
                         ]);
                 }
             }
+
+          
+          
+
+            Config::set($routes,'themes.route');
+             
+
+         
         });
     }
 
@@ -155,7 +186,6 @@ class Service extends \think\Service
             if (!is_dir($themeDir)) {
                 continue;
             }
-            // dump($themeDir. ucfirst($name) . '.php');
             if (!is_file($themeDir . ucfirst($name) . '.php')) {
                 continue;
             }
@@ -188,11 +218,9 @@ class Service extends \think\Service
         if (!Config::get('themes.autoload', true)) {
             return true;
         }
-        $config = Config::get('theme');
+        $config = Config::get('themes');
         // 读取主题目录及钩子列表
         $base = (array)get_class_methods("\\think\\Themes");
-        // var_dump($base);
-        // die;
         // 读取主题目录中的php文件
         foreach (glob($this->getThemesPath() . '*/*.php') as $theme_file) {
             // 格式化路径信息
@@ -221,6 +249,8 @@ class Service extends \think\Service
                     }
                 }
             }
+
+            
         }
       
         Config::set($config, 'themes');  // 添加主题配置
@@ -254,7 +284,6 @@ class Service extends \think\Service
         if (!$theme) {
             return [];
         }
-
         return $theme->getConfig();
     }
 }
