@@ -32,7 +32,7 @@ class Themes
         
         $path = $request->pathinfo();
         $arr = explode('/',$path);
-	    $theme = Env::get("THEME_NAME");
+	    $theme = Env::get("theme.name");
         // 如果有主题 就跳转到主题主页
         if(empty($theme)){
             abort(404,"未设置主题模版");
